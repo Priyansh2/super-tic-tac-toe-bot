@@ -10,14 +10,13 @@ import sys
 import random
 import signal
 import team1 ##my bot
-import team36
-import team53
-import team76 ##better bot
-import team80 ##better bot
-import team81
-import team5
-import heuristic
-import team45
+from other_bots import team36
+from other_bots import team53
+from other_bots import team76 ##better bot
+from other_bots import team80 ##better bot
+from other_bots import team81
+from other_bots import team5
+from other_bots import team45
 from sys import platform
 
 
@@ -404,14 +403,14 @@ if __name__ == '__main__':
 	obj2 = ''
 	option = sys.argv[1]
 	if option == '1':
-		obj1 = team23.Player23()
-		obj2 = Player2()
+		obj1 = ManualPlayer()
+		obj2 = ManualPlayer()
 
 	elif option == '2':
 		obj1 = team1.Player1()
 		obj2 = ManualPlayer()
 	elif option == '3':
-		obj1 = team81.Player81()
+		obj1 = team45.Player45()
 		obj2 = team1.Player1()
 	else:
 		print('Invalid option')

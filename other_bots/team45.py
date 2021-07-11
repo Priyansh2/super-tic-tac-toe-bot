@@ -1,4 +1,4 @@
-import heuristic
+from other_bots import heuristic
 class Player45:
 	def __init__(self):
 		self.grid = {'00': ['01', '10'], '01': ['00', '02'], '02': ['01', '12'],
