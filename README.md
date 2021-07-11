@@ -15,3 +15,9 @@ Usage: python simulator.py <option>
 * Alpha-Beta Minimax algorithm with iterative deepening
 * Local and Global Heuristic for board cells and block state. 
 
+# TODO
+* Move ordering (Killer Heuristic)
+* Better Heuristics
+* A* or SSS* search 
+* Monte Carlo Tree Search, ExpectiMAX, Reinforcement Learning
+
