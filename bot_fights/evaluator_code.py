@@ -1,31 +1,45 @@
-'''
+''' 
+
+This is the engine for the Ultimate TicTacToe Tournament. The code in this file is not for reproduction.
+@author: Devansh Shah
+
 The structure of the code is as below:
 1. Header Files
 2. Sample implementations of your class (Player and ManualPlayer)
 3. Game Logic
 4. Game simulator
+
+In case of any queries, please post on moodle.iiit.ac.in
+
 '''
 
 import sys
 import random
 import signal
-import team1 ##my bot
-import team36
-import team53
-import team76 ##better bot
-import team80 ##better bot
-import team81
-import team5
+import time
 import heuristic
-import team45
+import team1
+#from team3 import Player3
+#from team4 import Player4
+from team5 import Player5
+from team36 import Player36
+from team45 import Player45
+from team53 import Player53
+from team76 import Player76
+from team80 import Player80
+from team81 import Player81
+
+
+
 from sys import platform
-
-
-class TimedOutExc(Exception):
-		pass
+running_against = 0
+current_me = 0
+used_f1=0
+used_f2=0
+used_f3=0
 
 def handler(signum, frame):
-	#print('Signal handler called with signal', signum)
+	#print 'Signal handler called with signal', signum
 	raise TimedOutExc()
 
 
@@ -34,15 +48,32 @@ class ManualPlayer:
 		pass
 	def move(self, temp_board, temp_block, old_move, flag):
 		print('Enter your move: <format:row column> (you\'re playing with', flag + ")")
+		#obj1 = Player76()
+		#mvp = obj1.move(temp_board,temp_block,old_move,flag)
 		mvp = input()
 		mvp = mvp.split()
 		return (int(mvp[0]), int(mvp[1]))
 
 class Player1:
-
-	def __init__(self):
+	def __init__(self,playerno):
 		# You may initialize your object here and use any variables for storing throughout the game
-		pass
+		if playerno == 0:
+			self.obj1 = team1.Player1()
+		if playerno == 1:
+			self.obj1 = Player5()
+		if playerno == 2:
+			self.obj1 = Player45()
+		if playerno == 3:
+			self.obj1 = Player53()
+		if playerno == 4:
+			self.obj1 = Player76()
+		if playerno == 5:
+			self.obj1 = Player80()
+		if playerno == 6:
+			self.obj1 = Player81()
+		if playerno == 7:
+			##TLE BOT. NEVER TEST ON IT!
+			self.obj1 = Player36()
 
 	def move(self,temp_board,temp_block,old_move,flag):
 		#List of permitted blocks, based on old move.
@@ -50,13 +81,17 @@ class Player1:
 		#Get list of empty valid cells
 		cells = get_empty_out_of(temp_board, blocks_allowed,temp_block)
 		#Choose a move based on some algorithm, here it is a random move.
-		return cells[random.randrange(len(cells))]
+		mvp = self.obj1.move(temp_board,temp_block,old_move,flag)
+		return (int(mvp[0]), int(mvp[1]))
 
 class Player2:
 
-	def __init__(self):
+	def __init__(self,in1,in2,in3):
 		# You may initialize your object here and use any variables for storing throughout the game
-		pass
+		self.obj1 = team1.Player1()
+		self.in1 = in1
+		self.in2 = in2
+		self.in3 = in3
 
 	def move(self,temp_board,temp_block,old_move,flag):
 		#List of permitted blocks, based on old move.
@@ -64,7 +99,10 @@ class Player2:
 		#Get list of empty valid cells
 		cells = get_empty_out_of(temp_board, blocks_allowed,temp_block)
 		#Choose a move based on some algorithm, here it is a random move.
-		return cells[random.randrange(len(cells))]
+		print(running_against,'    f value 1',used_f1,'    f value 2',used_f2,'    f value 3',used_f3)
+		mvp = self.obj1.move(temp_board,temp_block,old_move,flag)
+		print('This is the new me',flag)
+		return (int(mvp[0]), int(mvp[1]))
 
 def determine_blocks_allowed(old_move, block_stat):
 	blocks_allowed = []
@@ -185,8 +223,8 @@ def update_lists(game_board, block_stat, move_ret, fl):
 		for j in range(id2*3,id2*3+3):
 			if game_board[i][j] == '-':
 				flag = 1
-
-
+	if flag == 0:
+		block_stat[block_no] = 'D'
 	if block_stat[block_no] == '-':
 		if game_board[id1*3][id2*3] == game_board[id1*3+1][id2*3+1] and game_board[id1*3+1][id2*3+1] == game_board[id1*3+2][id2*3+2] and game_board[id1*3+1][id2*3+1] != '-' and game_board[id1*3+1][id2*3+1] != 'D':
 			mflg=1
@@ -195,15 +233,13 @@ def update_lists(game_board, block_stat, move_ret, fl):
 		if mflg != 1:
 			for i in range(id2*3,id2*3+3):
 				if game_board[id1*3][i]==game_board[id1*3+1][i] and game_board[id1*3+1][i] == game_board[id1*3+2][i] and game_board[id1*3][i] != '-' and game_board[id1*3][i] != 'D':
-					mflg = 1
-					break
+						mflg = 1
+						break
 		if mflg != 1:
 			for i in range(id1*3,id1*3+3):
 				if game_board[i][id2*3]==game_board[i][id2*3+1] and game_board[i][id2*3+1] == game_board[i][id2*3+2] and game_board[i][id2*3] != '-' and game_board[i][id2*3] != 'D':
-					mflg = 1
-					break
-	if flag == 0:
-		block_stat[block_no] = 'D'
+						mflg = 1
+						break
 	if mflg == 1:
 		block_stat[block_no] = fl
 
@@ -241,19 +277,52 @@ def terminal_state_reached(game_board, block_stat,point1,point2):
 
 
 def decide_winner_and_get_message(player,status, message):
+	f = open('results.txt',"a")
 	if status == 'P1':
+		if current_me == 1:
+			f.write(str(running_against)+'  =>  '+'Win =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		else:
+			f.write(str(running_against)+'  =>  '+'Lose =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		f.close()
 		return ('P1', 'MORE BLOCKS')
 	elif status == 'P2':
+		if current_me == 1:
+			f.write(str(running_against)+'  =>  '+'Lose =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		else:
+			f.write(str(running_against)+'  =>  '+'Win =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		f.close()
 		return ('P2', 'MORE BLOCKS')
 	elif player == 'P1' and status == 'L':
+		if current_me == 1:
+			f.write(str(running_against)+'  =>  '+'Win =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		else:
+			f.write(str(running_against)+'  =>  '+'Lose =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		f.close()
 		return ('P2',message)
 	elif player == 'P1' and status == 'W':
+		if current_me == 1:
+			f.write(str(running_against)+'  =>  '+'Win =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		else:
+			f.write(str(running_against)+'  =>  '+'Lose =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		f.close()
 		return ('P1',message)
 	elif player == 'P2' and status == 'L':
+		if current_me == 1:
+			f.write(str(running_against)+'  =>  '+'Lose =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		else:
+			f.write(str(running_against)+'  =>  '+'Win =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		f.close()
 		return ('P1',message)
 	elif player == 'P2' and status == 'W':
+		if current_me == 1:
+			f.write(str(running_against)+'  =>  '+'Lose =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		else:
+			f.write(str(running_against)+'  =>  '+'Win =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		f.close()
 		return ('P2',message)
 	else:
+		f.write(str(running_against)+'  =>  '+'Draw =>'+str(used_f1)+'=>'+str(used_f2)+'=>'+str(used_f3)+'\n')
+		f.close()
 		return ('NONE','DRAW')
 	return
 
@@ -295,7 +364,8 @@ def simulate(obj1,obj2):
 
 	WINNER = ''
 	MESSAGE = ''
-	TIMEALLOWED = 12
+	TIMEALLOWED = 12000
+	t0 = time.time()
 	p1_pts=0
 	p2_pts=0
 
@@ -310,17 +380,15 @@ def simulate(obj1,obj2):
 		else: pass
 		ret_move_pl1 = pl1.move(temp_board_state, temp_block_stat, old_move, pl1_fl)
 
-		try:
-			ret_move_pl1 = pl1.move(temp_board_state, temp_block_stat, old_move, pl1_fl)
-		except:
-			WINNER, MESSAGE = decide_winner_and_get_message('P1', 'L',   'TIMED OUT')
-			print(MESSAGE)
-			break
+#		try:
+#			ret_move_pl1 = pl1.move(temp_board_state, temp_block_stat, old_move, pl1_fl)
+#		except:
+#			WINNER, MESSAGE = decide_winner_and_get_message('P1', 'L',   'TIMED OUT')
+#			print MESSAGE
+#			break
 		if platform!="win64" and platform!="win32":
 			signal.alarm(0)
 		else: pass
-		#signal.alarm(0)
-
 		# Check if list is tampered.
 		if not (verification_fails_board(game_board, temp_board_state) and verification_fails_block(block_stat, temp_block_stat)):
 			WINNER, MESSAGE = decide_winner_and_get_message('P1', 'L',   'MODIFIED CONTENTS OF LISTS')
@@ -345,19 +413,19 @@ def simulate(obj1,obj2):
 
 		old_move = ret_move_pl1
 		print_lists(game_board, block_stat)
-
 		temp_board_state = game_board[:]
 		temp_block_stat = block_stat[:]
+
 		if platform!="win64" and platform!="win32":
 			signal.signal(signal.SIGALRM, handler)
 			signal.alarm(TIMEALLOWED)
 		else: pass
-		'''signal.signal(signal.SIGALRM, handler)
-		signal.alarm(TIMEALLOWED)'''
 
 		try:
 			ret_move_pl2 = pl2.move(temp_board_state, temp_block_stat, old_move, pl2_fl)
 		except:
+			t1 = time.time()
+			print(t1-t0)
 			WINNER, MESSAGE = decide_winner_and_get_message('P2', 'L',   'TIMED OUT')
 			break
 		if platform!="win64" and platform!="win32":
@@ -365,17 +433,15 @@ def simulate(obj1,obj2):
 		else: pass
 
 		if not (verification_fails_board(game_board, temp_board_state) and verification_fails_block(block_stat, temp_block_stat)):
-				WINNER, MESSAGE = decide_winner_and_get_message('P2', 'L',   'MODIFIED CONTENTS OF LISTS')
-				break
+			WINNER, MESSAGE = decide_winner_and_get_message('P2', 'L',   'MODIFIED CONTENTS OF LISTS')
+			break
 
 		if not check_valid_move(game_board, block_stat, ret_move_pl2, old_move):
 			WINNER, MESSAGE = decide_winner_and_get_message('P2', 'L',   'MADE AN INVALID MOVE')
 			break
 
 		print("Player 2 made the move:", ret_move_pl2, 'with', pl2_fl)
-
 		p2_pts += update_lists(game_board, block_stat, ret_move_pl2, pl2_fl)
-
 		# Now check if the last move resulted in a terminal state
 		gamestatus, mesg =  terminal_state_reached(game_board, block_stat,p1_pts,p2_pts)
 		if gamestatus == True:
@@ -387,12 +453,10 @@ def simulate(obj1,obj2):
 			print_lists(game_board, block_stat)
 
 	print(WINNER)
-	print(string)
 	print(MESSAGE)
 
 if __name__ == '__main__':
 	## get game playing objects
-
 	if len(sys.argv) != 2:
 		print('Usage: python simulator.py <option>')
 		print('<option> can be 1 => Random player vs. Random player')
@@ -403,24 +467,34 @@ if __name__ == '__main__':
 	obj1 = ''
 	obj2 = ''
 	option = sys.argv[1]
-	if option == '1':
-		obj1 = team23.Player23()
-		obj2 = Player2()
+	for in1 in range(1,4,1):
+		for in2 in range(8,21,3):
+			for in3 in range(50,250,50):
+				used_f1 = in1
+				used_f2 = in2
+				used_f3 = in3
+				for playerno in range(0,7):
+					#try:
+					running_against = playerno
+					if option == '1':
+						obj1 = Player1(playerno)
+						obj2 = Player2(in1,in2,in3)
 
-	elif option == '2':
-		obj1 = team1.Player1()
-		obj2 = ManualPlayer()
-	elif option == '3':
-		obj1 = team81.Player81()
-		obj2 = team1.Player1()
-	else:
-		print('Invalid option')
-		sys.exit(1)
+					elif option == '2':
+						obj1 = Player1()
+						obj2 = ManualPlayer()
+					elif option == '3':
+						obj1 = ManualPlayer()
+						obj2 = ManualPlayer()
+					else:
+						print('Invalid option')
+						sys.exit(1)
 
-	num = random.uniform(0,1)
-	if num > 0.5:
-		string = "P1 is obj2"
-		simulate(obj2, obj1)
-	else:
-		string = "P1 is obj1"
-		simulate(obj1, obj2)
+					current_me = 1
+					simulate(obj2, obj1)
+					current_me = 2
+					simulate(obj1, obj2)
+					#except:
+						#continue
+		
+	
