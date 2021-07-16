@@ -394,9 +394,9 @@ if __name__ == '__main__':
 
 	if len(sys.argv) != 2:
 		print('Usage: python simulator.py <option>')
-		print('<option> can be 1 => Random player vs. Random player')
-		print('                2 => Human vs. Random Player')
-		print('                3 => Human vs. Human')
+		print('<option> can be 1 => Human vs. Human')
+		print('                2 => BOT vs. Human')
+		print('                3 => BOT vs. BOT')
 		sys.exit(1)
 
 	obj1 = ''
